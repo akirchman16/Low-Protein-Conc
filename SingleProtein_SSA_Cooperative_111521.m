@@ -8,37 +8,38 @@ close all;
 % stochastic simulations. Now cooperativity will be included, but still no
 % competition.
 
-N = 1000;    %length of ssDNA
+N = 10000;    %length of ssDNA
 n = 3;  %length of protein (RAD51)
 
-MaxEvents = 250;   %maximum number of events to occur
-InitialFree = 1000;    %initial number of proteins that are around the lattice
+MinEvents = 100;   %minimum number of events to occur (typically keep at 100)
+InitialFree = 2000;    %initial number of proteins that are around the lattice
 
 k_on = 1;   %kinetic rate constant for protein binding
-k_off = 1;  %kinetic rate constant for protein unbinding
+k_off = 100;  %kinetic rate constant for protein unbinding
 w = 1;  %cooperativity constant
 
 % Memory Allocation
-X_Locations = zeros(3,MaxEvents);   %number of free locations on the DNA lattice over time
-X_Free = zeros(1,MaxEvents);    %number of free proteins with each event
+X_Locations = zeros(3,MinEvents);   %number of free locations on the DNA lattice over time
+X_Free = zeros(1,MinEvents);    %number of free proteins with each event
 X_Free(1) = InitialFree;    %records initial amount of free proteins
-X_Bound = zeros(1,MaxEvents);   %number of bound proteins on the lattice with each event (lattice is initially empty)
-Populations = zeros(3,MaxEvents);   %combined array tracking populations of bound/free proteins and free locations
-a_P = zeros(4,MaxEvents);   %propensity functions
-t = zeros(1,MaxEvents+1); %time tracker
-dt = zeros(1,MaxEvents);    %records each time interval in the simulation
-EventHistory = zeros(4,MaxEvents);  %records where each event occurs at each step
+X_Bound = zeros(1,MinEvents);   %number of bound proteins on the lattice with each event (lattice is initially empty)
+Populations = zeros(3,MinEvents);   %combined array tracking populations of bound/free proteins and free locations
+a_P = zeros(4,MinEvents);   %propensity functions
+t = zeros(1,MinEvents+1); %time tracker
+dt = zeros(1,MinEvents);    %records each time interval in the simulation
+EventHistory = zeros(4,MinEvents);  %records where each event occurs at each step
     % 1 - Isolated Binding
     % 2 - Singly Contiguous Binding
     % 3 - Doubly Contiguous Binding
     % 4 - Unbinding
-FracCover = zeros(1,MaxEvents+1);   %tracks saturation of ssDNA lattice
+FracCover = zeros(1,MinEvents+1);   %tracks saturation of ssDNA lattice
 
 DNA = zeros(1,N);   %ssDNA lattice
 BoundAtSpot = zeros(1,N);   %used to record where proteins are bound
 
 Event = 0;  %counts number of events which have occured
-for i = 1:MaxEvents
+Equilibrium = 0;
+while Equilibrium == 0 %runs until the system reaches equilibrium
     Event = Event+1;    %increases event counter
     
     % Location Counter %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -114,13 +115,28 @@ for i = 1:MaxEvents
         disp('BROKEN PROTEIN');
         break  %ERROR STOP
     end
+    if Event >= MinEvents
+        QuarterTime = t(end)-(0.25*t(end));   %time that is 25% of the way back in the simulation
+        TimeDiff = t-QuarterTime;
+        TestPosition_t = find(abs(TimeDiff) == min(abs(TimeDiff)));  %position of time that is closest to 25% of the way back
+        t_Equilibrium_Test = t(TestPosition_t:end);  %set of time we're looking for and testing for equilibrium
+        Sat_Equilibrium_Test = FracCover(TestPosition_t:end);    %set of FracCover values to test for equilibrium in
+        Avg_Saturation = sum(Sat_Equilibrium_Test)/numel(Sat_Equilibrium_Test); %average saturation level
+        CurveFit = polyfit(t_Equilibrium_Test,Sat_Equilibrium_Test,1);  %linear fit to the last quarter of events
+        Y_Int_Error(Event) = abs(Avg_Saturation-CurveFit(2))/Avg_Saturation;   %percent error in y-intercept fit
+        if CurveFit(1) < (1/mean(dt)) & (Y_Int_Error(Event) < 0.05 | isnan(Y_Int_Error(Event)))  %if fitted slope is basically zero and the fitted y-int is basically the average saturation...
+            Equilibrium = 1;    %...then the system is considered to be at equilibirum
+        end
+    end
 end
 
 figure(1);
 subplot(2,2,[3,4]);
 scatter(t,FracCover,5,'r','filled');
 hold on;
-yline(n*InitialFree/N,'--k','Maximum Saturation');
+yline(n*InitialFree/N,'--k',['Max. Saturation: ', num2str(round(n*InitialFree/N,2))],'LabelHorizontalAlignment','left');
+yline(Avg_Saturation,'--r',['Eq. Saturation: ', num2str(round(Avg_Saturation,2))],'LabelHorizontalAlignment','right','LabelVerticalAlignment','bottom');
+% xline(QuarterTime,'--r',['Eq. Time: ', num2str(round(QuarterTime,2))],'LabelVerticalAlignment','top','LabelHorizontalAlignment','left');
 xlim([0 t(end)]);
 xlabel('Time, t');
 ylim([0 1]);
