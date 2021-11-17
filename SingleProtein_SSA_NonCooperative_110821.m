@@ -1,7 +1,7 @@
 clearvars;
 close all;
 
-% This code is meant to track a single protein (RAD51 only; no
+% This code is meant to track a single protein (RAD51 only, no
 % competition) that binds to and unbinds from a ssDNA lattice at low
 % concentrations. Rather than having a constant concentration over time,
 % individual protein populations will be tracked. This utilizes the SSA for
@@ -11,8 +11,8 @@ close all;
 N = 1000;    %length of ssDNA
 n = 3;  %length of protein (RAD51)
 
-MaxEvents = 100;   %maximum number of events to occur
-InitialFree = 100;    %initial number of proteins that are around the lattice
+MaxEvents = 250;   %maximum number of events to occur
+InitialFree = 1000;    %initial number of proteins that are around the lattice
 
 k_on = 10;   %kinetic rate constant for protein binding
 k_off = 1;  %kinetic rate constant for protein unbinding
