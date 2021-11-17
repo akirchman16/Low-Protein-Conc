@@ -8,11 +8,11 @@ close all;
 % stochastic simulations. Now cooperativity will be included, but still no
 % competition.
 
-N = 1000;    %length of ssDNA
+N = 50;    %length of ssDNA
 n = 3;  %length of protein (RAD51)
 
-MaxEvents = 250;   %maximum number of events to occur
-InitialFree = 1000;    %initial number of proteins that are around the lattice
+MaxEvents = 100;   %maximum number of events to occur
+InitialFree = 10;    %initial number of proteins that are around the lattice
 
 k_on = 10;   %kinetic rate constant for protein binding
 k_off = 1;  %kinetic rate constant for protein unbinding
@@ -140,9 +140,8 @@ subplot(2,2,2);
 scatter(t(1:end-1),X_Locations(1,:),5,'r','filled'); hold on;    %Isolated locations
 scatter(t(1:end-1),X_Locations(2,:),5,'b','filled');    %Singly Contiguous locations
 scatter(t(1:end-1),X_Locations(3,:),5,'g','filled');    %Doubly Contiguous locations
-scatter(t(1:end-1),sum(X_Locations(1:3,:)),5,'k','filled');   %total free locations
+scatter(t(1:end-1),sum(X_Locations(1:3,:)),5'k','filled');   %total free locations
 xlim([0 t(end)]); xlabel('Time, t');
 ylim([0 N]);    ylabel('Free Locations');
-legend('Isolated','Singly Contiguous','Doubly Contiguous','Total','Location','Northeast');
 title('Available Locations');
 box on;
