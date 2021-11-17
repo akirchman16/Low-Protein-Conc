@@ -14,7 +14,7 @@ n = 3;  %length of protein (RAD51)
 MaxEvents = 250;   %maximum number of events to occur
 InitialFree = 1000;    %initial number of proteins that are around the lattice
 
-k_on = 10;   %kinetic rate constant for protein binding
+k_on = 1;   %kinetic rate constant for protein binding
 k_off = 1;  %kinetic rate constant for protein unbinding
 w = 1;  %cooperativity constant
 
