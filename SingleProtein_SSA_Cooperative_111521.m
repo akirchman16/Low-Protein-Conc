@@ -8,11 +8,11 @@ close all;
 % stochastic simulations. Now cooperativity will be included, but still no
 % competition.
 
-N = 10000;    %length of ssDNA
+N = 1000;    %length of ssDNA
 n = 3;  %length of protein (RAD51)
 
 MinEvents = 100;   %minimum number of events to occur (typically keep at 100)
-InitialFree = 2000;    %initial number of proteins that are around the lattice
+InitialFree = 100;    %initial number of proteins that are around the lattice
 
 k_on = 1;   %kinetic rate constant for protein binding
 k_off = 100;  %kinetic rate constant for protein unbinding
